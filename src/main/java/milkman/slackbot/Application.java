@@ -12,7 +12,16 @@ public class Application {
             return ctx.ack(":wave: Hello!");
         });
 
-        SlackAppServer server = new SlackAppServer(app);
-        server.start(); // http://localhost:3000/slack/events
+        SlackAppServer server = new SlackAppServer(app, getPort());
+        server.start();
+    }
+
+
+    private static int getPort(){
+        var port = System.getenv("PORT");
+        if (port == null)
+            return 3000;
+
+        return Integer.parseInt(port);
     }
 }
