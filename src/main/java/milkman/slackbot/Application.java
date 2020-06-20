@@ -2,6 +2,7 @@ package milkman.slackbot;
 
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.jetty.SlackAppServer;
+import com.slack.api.webhook.WebhookResponse;
 
 import static com.slack.api.model.block.Blocks.*;
 import static com.slack.api.model.block.composition.BlockCompositions.markdownText;
@@ -24,6 +25,15 @@ public class Application {
                             ))
                     )
             ));
+        });
+
+        app.blockAction("ping-again", (req, ctx) -> {
+            WebhookResponse result = ctx.respond(res -> res
+                    .responseType("in_channel") // or "in_channnel"
+                    .text("Hi there, @" + req.getPayload().getUser().getUsername() + "! you said: " + req.getPayload().getMessage().getText())
+            );
+
+            return ctx.ack();
         });
 
         SlackAppServer server = new SlackAppServer(app, getPort());
