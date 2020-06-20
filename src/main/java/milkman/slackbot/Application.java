@@ -15,6 +15,7 @@ public class Application {
     public static void main(String[] args) throws Exception {
         // App expects env variables (SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET)
         App app = new App();
+        app.use(new DebugMiddleware());
 
         app.command("/milkman", (req, ctx) -> {
             return ctx.ack(asBlocks(
