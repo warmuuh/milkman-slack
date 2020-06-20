@@ -30,7 +30,7 @@ public class Application {
         app.blockAction("ping-again", (req, ctx) -> {
             WebhookResponse result = ctx.respond(res -> res
                     .responseType("in_channel") // or "in_channnel"
-                    .text("Hi there, @" + req.getPayload().getUser().getUsername() + "! you said: " + req.getPayload().getMessage().getText())
+                    .text("Hi there! you said: " + req.getPayload().getActions().get(0).getValue())
             );
 
             return ctx.ack();
