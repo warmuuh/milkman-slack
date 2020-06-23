@@ -5,6 +5,7 @@ import java.net.URI;
 import lombok.SneakyThrows;
 import milkman.persistence.UnknownPluginHandler;
 import milkman.plugin.privatebin.PrivateBinApi;
+import milkman.plugin.privatebin.RequestDataContainer;
 import milkman.ui.plugin.rest.domain.RestRequestContainer;
 
 public class RequestLoader {
@@ -16,7 +17,9 @@ public class RequestLoader {
     ObjectMapper mapper = new ObjectMapper();
     mapper.addHandler(new UnknownPluginHandler());
 
-    return mapper.readValue(json, RestRequestContainer.class);
+    RequestDataContainer container = mapper.readValue(json, RequestDataContainer.class);
+
+    return (RestRequestContainer) container.getRequest();
   }
 
 }
