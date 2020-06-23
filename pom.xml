@@ -21,10 +21,19 @@
             <version>1.0.11</version>
         </dependency>
         <dependency>
-            <groupId>com.github.warmuuh</groupId>
+            <groupId>com.github.warmuuh.milkman</groupId>
             <artifactId>milkman</artifactId>
             <version>4.5.0</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.warmuuh.milkman</groupId>
+            <artifactId>milkman-rest</artifactId>
+            <version>4.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.warmuuh.milkman</groupId>
+            <artifactId>milkman-privatebin</artifactId>
+            <version>4.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
