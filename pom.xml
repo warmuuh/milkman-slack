@@ -11,6 +11,7 @@
     <properties>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.source>11</maven.compiler.source>
+        <version.milkman>9a5b41d4d9</version.milkman>
     </properties>
 
     <dependencies>
@@ -23,17 +24,17 @@
         <dependency>
             <groupId>com.github.warmuuh.milkman</groupId>
             <artifactId>milkman</artifactId>
-            <version>4.5.0</version>
+            <version>${version.milkman}</version>
         </dependency>
         <dependency>
             <groupId>com.github.warmuuh.milkman</groupId>
             <artifactId>milkman-rest</artifactId>
-            <version>4.5.0</version>
+            <version>${version.milkman}</version>
         </dependency>
         <dependency>
             <groupId>com.github.warmuuh.milkman</groupId>
             <artifactId>milkman-privatebin</artifactId>
-            <version>4.5.0</version>
+            <version>${version.milkman}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
