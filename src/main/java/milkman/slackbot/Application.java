@@ -2,12 +2,18 @@ package milkman.slackbot;
 
 import com.slack.api.bolt.jetty.SlackAppServer;
 
+import java.util.Map;
+
 
 public class Application {
 
     public static void main(String[] args) throws Exception {
         SlackApp slackApp = new SlackApp();
-        SlackAppServer server = new SlackAppServer(slackApp.getApp(), getPort());
+        OauthSlackApp oauthSlackApp = new OauthSlackApp();
+        SlackAppServer server = new SlackAppServer(Map.of(
+                "/slack/events", slackApp.getApp(),
+                "/slack/oauth", oauthSlackApp.getApp()),
+                getPort());
         server.start();
     }
 

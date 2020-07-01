@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/milkman-slack-1.0-SNAPSHOT.jar
+web: java -Djdk.tls.client.protocols=TLSv1.2 -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/milkman-slack-1.0-SNAPSHOT.jar
