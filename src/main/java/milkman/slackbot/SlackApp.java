@@ -13,6 +13,10 @@ import com.slack.api.model.block.element.BlockElement;
 import com.slack.api.webhook.WebhookResponse;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import milkman.slackbot.db.BotDatabase;
+import milkman.slackbot.db.Database;
+import milkman.slackbot.db.InstallerDatabase;
+import milkman.slackbot.oauth.JdbcInstallationService;
 import milkman.ui.plugin.rest.domain.RestRequestContainer;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -40,14 +44,19 @@ public class SlackApp {
   private final RequestLoader loader;
   private final ExecutorService executor = Executors.newCachedThreadPool();
 
-  public SlackApp() {
+  public SlackApp(Database db) {
 
     loader = new RequestLoader();
     renderer = new RequestRenderer();
     app = new App()
-        .use(new DebugMiddleware());
+            .use(new DebugMiddleware());
 
     app.endpoint("/", this::serveIndexPage);
+
+    var installers = new InstallerDatabase(db);
+    var bots = new BotDatabase(db);
+    app.service(new JdbcInstallationService(app.config(), installers, bots));
+
     app.command("/milkman", this::handleSlashCommand);
     app.blockAction(Pattern.compile("share-request-.*"), this::handleShareRequestAction);
     app.blockAction(Pattern.compile("render-request-.*"), this::handleRenderRequestAction);

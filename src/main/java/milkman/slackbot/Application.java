@@ -1,6 +1,7 @@
 package milkman.slackbot;
 
 import com.slack.api.bolt.jetty.SlackAppServer;
+import milkman.slackbot.db.Database;
 
 import java.util.Map;
 
@@ -8,8 +9,11 @@ import java.util.Map;
 public class Application {
 
     public static void main(String[] args) throws Exception {
-        SlackApp slackApp = new SlackApp();
-        OauthSlackApp oauthSlackApp = new OauthSlackApp();
+        var db = new Database();
+        db.executeInitScript();
+
+        SlackApp slackApp = new SlackApp(db);
+        OauthSlackApp oauthSlackApp = new OauthSlackApp(db);
         SlackAppServer server = new SlackAppServer(Map.of(
                 "/slack/events", slackApp.getApp(),
                 "/slack/oauth", oauthSlackApp.getApp()),
