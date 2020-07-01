@@ -21,15 +21,13 @@ public class JdbcOAuthStateService implements OAuthStateService {
 
     @Override
     public boolean isAvailableInDatabase(String state) {
-        log.warn("Disabled state param for now");
-        return true;
-//        Long millisToExpire = states.loadStateData(state)
-//                .map(Long::valueOf)
-//                .orElseGet(() -> {
-//                    log.warn("State {} not found", state);
-//                    return null;
-//                });
-//        return millisToExpire != null && millisToExpire > System.currentTimeMillis();
+        Long millisToExpire = states.loadStateData(state)
+                .map(Long::valueOf)
+                .orElseGet(() -> {
+                    log.warn("State {} not found", state);
+                    return null;
+                });
+        return millisToExpire != null && millisToExpire > System.currentTimeMillis();
     }
 
     @Override
