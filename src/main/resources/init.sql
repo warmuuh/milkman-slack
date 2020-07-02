@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS installers (
-    id int NOT NULL PRIMARY KEY,
+    id SERIAL,
     client_id varchar(255),
     enterprise_id varchar(255),
     team_id varchar(255),
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS installers (
 );
 
 CREATE TABLE IF NOT EXISTS bots (
-    id int NOT NULL PRIMARY KEY,
+    id SERIAL,
     client_id varchar(255),
     enterprise_id varchar(255),
     team_id varchar(255),
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS bots (
 );
 
 CREATE TABLE IF NOT EXISTS states (
-  id int NOT NULL PRIMARY KEY,
+  id SERIAL,
   state varchar(255),
   data varchar(255)
 );
