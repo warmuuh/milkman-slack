@@ -20,7 +20,7 @@ public class StateDatabase {
             if (!resultSet.next()) {
                 return Optional.empty();
             }
-            return Optional.ofNullable(resultSet.getString(0));
+            return Optional.ofNullable(resultSet.getString(1));
         }
     }
 
