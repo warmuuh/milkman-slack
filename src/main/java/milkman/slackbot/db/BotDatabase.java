@@ -34,10 +34,7 @@ public class BotDatabase {
             stmt.setString(2, clientId);
             stmt.setString(3, teamId);
             stmt.setString(4, enterpriseId);
-
-            if (!stmt.execute()) {
-                throw new IllegalArgumentException("Nothing updated");
-            }
+            stmt.execute();
         }
     }
 
@@ -49,10 +46,7 @@ public class BotDatabase {
             stmt.setString(2, clientId);
             stmt.setString(3, teamId);
             stmt.setString(4, enterpriseId);
-
-            if (!stmt.execute()) {
-                throw new IllegalArgumentException("Nothing inserted");
-            }
+            stmt.execute();
         }
     }
 
@@ -63,10 +57,7 @@ public class BotDatabase {
             stmt.setString(1, clientId);
             stmt.setString(2, teamId);
             stmt.setString(3, enterpriseId);
-
-            if (!stmt.execute()) {
-                throw new IllegalArgumentException("Nothing deleted");
-            }
+            stmt.execute();
         }
     }
 

@@ -30,10 +30,7 @@ public class StateDatabase {
             var stmt = connection.prepareStatement("UPDATE states SET data = ? WHERE state = ?");
             stmt.setString(1, data);
             stmt.setString(2, state);
-
-            if (!stmt.execute()) {
-                throw new IllegalArgumentException("Nothing updated");
-            }
+            stmt.execute();
         }
     }
 
@@ -43,10 +40,7 @@ public class StateDatabase {
             var stmt = connection.prepareStatement("INSERT INTO states (state, data) VALUES (?,?)");
             stmt.setString(1, state);
             stmt.setString(2, data);
-
-            if (!stmt.execute()) {
-                throw new IllegalArgumentException("Nothing inserted");
-            }
+            stmt.execute();
         }
     }
 
@@ -55,10 +49,7 @@ public class StateDatabase {
         try (var connection = db.getConnection()) {
             var stmt = connection.prepareStatement("DELETE FROM states WHERE state = ?");
             stmt.setString(1, state);
-
-            if (!stmt.execute()) {
-                throw new IllegalArgumentException("Nothing deleted");
-            }
+            stmt.execute();
         }
     }
 
