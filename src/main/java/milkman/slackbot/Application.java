@@ -11,9 +11,8 @@ import java.util.Map;
 public class Application {
 
     public static void main(String[] args) throws Exception {
-//        var db = new Database();
-        Database db = null;
-//        db.executeInitScript();
+        var db = new Database();
+        db.executeInitScript();
 
         SlackApp slackApp = new SlackApp(db);
         OauthSlackApp oauthSlackApp = new OauthSlackApp(db);
