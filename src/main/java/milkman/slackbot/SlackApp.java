@@ -48,8 +48,7 @@ public class SlackApp {
 
     loader = new RequestLoader();
     renderer = new RequestRenderer();
-    app = new App()
-            .use(new DebugMiddleware());
+    app = new App();
 
     app.endpoint("/", this::serveIndexPage);
 
