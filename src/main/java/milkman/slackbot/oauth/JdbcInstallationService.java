@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import milkman.slackbot.db.BotDatabase;
 import milkman.slackbot.db.InstallerDatabase;
 
+import static java.util.Optional.ofNullable;
+
 @Slf4j
 @RequiredArgsConstructor
 public class JdbcInstallationService implements InstallationService {
@@ -34,24 +36,24 @@ public class JdbcInstallationService implements InstallationService {
 
     @Override
     public void saveInstallerAndBot(Installer installer) throws Exception {
-        installers.addInstallerData(config.getClientId(), installer.getEnterpriseId(), installer.getTeamId(), JsonOps.toJsonString(installer));
-        bots.addBotsData(config.getClientId(), installer.getEnterpriseId(), installer.getTeamId(), JsonOps.toJsonString(installer));
+        installers.addInstallerData(config.getClientId(), ofNullable(installer.getEnterpriseId()), installer.getTeamId(), JsonOps.toJsonString(installer));
+        bots.addBotsData(config.getClientId(), ofNullable(installer.getEnterpriseId()), installer.getTeamId(), JsonOps.toJsonString(installer));
     }
 
     @Override
     public void deleteBot(Bot bot) throws Exception {
-        bots.deleteBotsData(config.getClientId(), bot.getEnterpriseId(), bot.getTeamId());
+        bots.deleteBotsData(config.getClientId(), ofNullable(bot.getEnterpriseId()), bot.getTeamId());
     }
 
     @Override
     public void deleteInstaller(Installer installer) throws Exception {
-        installers.deleteInstallerData(config.getClientId(), installer.getEnterpriseId(), installer.getTeamId());
-        bots.deleteBotsData(config.getClientId(), installer.getEnterpriseId(), installer.getTeamId());
+        installers.deleteInstallerData(config.getClientId(), ofNullable(installer.getEnterpriseId()), installer.getTeamId());
+        bots.deleteBotsData(config.getClientId(), ofNullable(installer.getEnterpriseId()), installer.getTeamId());
     }
 
     @Override
     public Bot findBot(String enterpriseId, String teamId) {
-        return bots.loadBotsData(config.getClientId(), enterpriseId, teamId)
+        return bots.loadBotsData(config.getClientId(), ofNullable(enterpriseId), teamId)
                 .map(json -> JsonOps.fromJson(json, DefaultBot.class))
                 .orElseGet(() -> {
                     log.warn("Failed to load bot for enterprise id {}, team id {}", enterpriseId, teamId);
@@ -61,7 +63,7 @@ public class JdbcInstallationService implements InstallationService {
 
     @Override
     public Installer findInstaller(String enterpriseId, String teamId, String userId) {
-        return installers.loadInstallerData(config.getClientId(), enterpriseId, teamId)
+        return installers.loadInstallerData(config.getClientId(), ofNullable(enterpriseId), teamId)
                 .map(json -> JsonOps.fromJson(json, DefaultInstaller.class))
                 .orElseGet(() -> {
                     log.warn("Failed to load bot for enterprise id {}, team id {}", enterpriseId, teamId);
