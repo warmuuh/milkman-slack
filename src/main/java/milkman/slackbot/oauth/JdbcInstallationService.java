@@ -69,4 +69,9 @@ public class JdbcInstallationService implements InstallationService {
                 });
     }
 
+    @Override
+    public String getInstallationGuideText(String enterpriseId, String teamId, String userId) {
+        log.warn("failed to find bot/installer for enterprise: " + enterpriseId + ", team: " + teamId);
+        return "failed to find bot/installer for enterprise: " + enterpriseId + ", team: " + teamId;
+    }
 }
