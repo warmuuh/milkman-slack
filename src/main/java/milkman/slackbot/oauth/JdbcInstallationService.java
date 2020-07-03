@@ -53,8 +53,6 @@ public class JdbcInstallationService implements InstallationService {
 
     @Override
     public Bot findBot(String enterpriseId, String teamId) {
-        log.info("Finding bot: " + enterpriseId + " / " + teamId);
-        System.out.println("SOUT: Finding bot: " + enterpriseId + " / " + teamId);
         return bots.loadBotsData(config.getClientId(), ofNullable(enterpriseId), teamId)
                 .map(json -> JsonOps.fromJson(json, DefaultBot.class))
                 .orElseGet(() -> {
@@ -65,8 +63,6 @@ public class JdbcInstallationService implements InstallationService {
 
     @Override
     public Installer findInstaller(String enterpriseId, String teamId, String userId) {
-        log.info("Finding installer: " + enterpriseId + " / " + teamId);
-        System.out.println("SOUT: Finding installer: " + enterpriseId + " / " + teamId);
         return installers.loadInstallerData(config.getClientId(), ofNullable(enterpriseId), teamId)
                 .map(json -> JsonOps.fromJson(json, DefaultInstaller.class))
                 .orElseGet(() -> {
@@ -75,9 +71,4 @@ public class JdbcInstallationService implements InstallationService {
                 });
     }
 
-    @Override
-    public String getInstallationGuideText(String enterpriseId, String teamId, String userId) {
-        log.warn("failed to find bot/installer for enterprise: " + enterpriseId + ", team: " + teamId);
-        return "failed to find bot/installer for enterprise: " + enterpriseId + ", team: " + teamId;
-    }
 }
