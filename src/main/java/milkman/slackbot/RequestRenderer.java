@@ -89,7 +89,7 @@ public class RequestRenderer {
     }
 
     if (StringUtils.isNotBlank(uri.getQuery())) {
-      b.append(uri.getQuery());
+      b.append("?").append(uri.getQuery());
     }
 
     return section
