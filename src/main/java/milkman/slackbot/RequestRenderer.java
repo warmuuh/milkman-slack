@@ -4,18 +4,19 @@ import com.slack.api.model.block.ContextBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.SectionBlock;
 import com.slack.api.model.block.SectionBlock.SectionBlockBuilder;
+import com.slack.api.model.block.composition.MarkdownTextObject;
 import com.slack.api.model.view.View;
 import lombok.SneakyThrows;
-import milkman.ui.plugin.rest.curl.CurlTextExport;
-import milkman.ui.plugin.rest.curl.HttpTextExport;
-import milkman.ui.plugin.rest.curl.TextExport;
-import milkman.ui.plugin.rest.domain.RestRequestContainer;
+import milkman.domain.RequestContainer;
+import milkman.slackbot.preview.Previews;
+import milkman.slackbot.preview.RequestPreview;
+import milkman.slackbot.templates.Templates;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.*;
 import static com.slack.api.model.block.composition.BlockCompositions.markdownText;
@@ -25,91 +26,82 @@ import static com.slack.api.model.view.Views.*;
 
 public class RequestRenderer {
 
-  private Map<String, TextExport> exporters = Map.of(
-          "curl", new CurlTextExport(),
-          "http", new HttpTextExport()
-  );
+    @NotNull
+    public SectionBlock renderRequestSimplePreview(RequestContainer request) {
+        return section(section -> buildRequestHeader(section, request));
+    }
 
-  @NotNull
-  public SectionBlock renderRequestSimplePreview(RestRequestContainer request) {
-    return section(section -> buildRequestHeader(section, request));
-  }
+    @NotNull
+    public List<LayoutBlock> renderRequestPreview(
+            String requestUserId,
+            URI privateBinUrl,
+            RequestContainer request) {
+        return asBlocks(
+                header(requestUserId, privateBinUrl, request),
+                section(s -> s.text(plainText("Request Preview"))),
+                section(s -> buildRequestHeader(s, request)));
+    }
 
-  @NotNull
-  public List<LayoutBlock> renderRequestPreview(
-          String requestUserId,
-          URI privateBinUrl,
-          RestRequestContainer request) {
-    return asBlocks(
-            header(requestUserId, privateBinUrl),
-            section(s -> s.text(plainText("Request Preview"))),
-            section(s -> buildRequestHeader(s, request)));
-  }
+    public ContextBlock header(String requestUserId, URI privateBinUrl, RequestContainer request) {
+        var prevType = Previews.previewFor(request.getClass())
+                .map(RequestPreview::getType)
+                .orElse("Unknown");
 
-  public ContextBlock header(String requestUserId, URI privateBinUrl) {
-    return context(asContextElements(
-            markdownText("Request Shared by <@" + requestUserId + ">"),
-            markdownText("stored at <" + privateBinUrl + "|" + privateBinUrl.getHost() + ">")
-    ));
-  }
+        return context(asContextElements(
+                markdownText(prevType + " request Shared by <@" + requestUserId + ">"),
+                markdownText("stored at <" + privateBinUrl + "|" + privateBinUrl.getHost() + ">")
+        ));
+    }
 
 
-  public ContextBlock footer() {
-    return context(asContextElements(
+    public ContextBlock footer() {
+        return context(asContextElements(
             markdownText("powered by <https://github.com/warmuuh/milkman|Milkman>")
     ));
   }
 
-  public View buildRequestView(String renderingMethod, String privateBinUrl, RestRequestContainer request) {
-    return view(view -> view
-            .callbackId("unused")
-            .type("modal")
-            .notifyOnClose(false)
-            .title(viewTitle(
-                    title -> title.type("plain_text").text("Request: " + renderingMethod).emoji(true)))
-            .close(viewClose(close -> close.type("plain_text").text("Close").emoji(true)))
-            .blocks(asBlocks(
-                    section(section -> buildRequestHeader(section, request)),
-                    divider(),
+    public View buildRequestView(String renderingMethod, String privateBinUrl, RequestContainer request) {
+        return view(view -> view
+                .callbackId("unused")
+                .type("modal")
+                .notifyOnClose(false)
+                .title(viewTitle(
+                        title -> title.type("plain_text").text("Request: " + renderingMethod).emoji(true)))
+                .close(viewClose(close -> close.type("plain_text").text("Close").emoji(true)))
+                .blocks(asBlocks(
+                        section(section -> buildRequestHeader(section, request)),
+                        divider(),
                     section(s -> buildRequestBody(s, renderingMethod, request))
             ))
     );
   }
 
-  @SneakyThrows
-  private SectionBlockBuilder buildRequestHeader(SectionBlockBuilder section,
-      RestRequestContainer request) {
-    URI uri = new URI(request.getUrl());
+    @SneakyThrows
+    private SectionBlockBuilder buildRequestHeader(SectionBlockBuilder section,
+                                                   RequestContainer request) {
 
-    StringBuilder b = new StringBuilder();
-    if (StringUtils.isNotBlank(uri.getPath())) {
-      b.append(uri.getPath());
-    } else {
-      b.append("/");
+        return Previews.previewFor(request.getClass())
+                .map(p -> p.getPreview(request))
+                .map(this::toMarkDown)
+                .map(section::text)
+                .orElseGet(() -> section.text(plainText("Unknown request-type")));
     }
 
-    if (StringUtils.isNotBlank(uri.getQuery())) {
-      b.append("?").append(uri.getQuery());
+    private MarkdownTextObject toMarkDown(List<RequestPreview.PreviewEntry> requestPreview) {
+        return markdownText(requestPreview.stream()
+                .map(e -> e.getName() + ": `" + StringUtils.abbreviate(e.getValue(), 100) + "`")
+                .collect(Collectors.joining("\n"))
+        );
     }
 
-    return section
-        .text(markdownText("Name: `" + request.getName() + "`\n"
-            + "Request: `" + request.getHttpMethod() + " " + b + "`\n"
-            + "Host: `" + uri.getHost() + "`"));
-  }
-
-  private SectionBlockBuilder buildRequestBody(SectionBlockBuilder section,
-                                               String renderingMethod,
-                                               RestRequestContainer request) {
-
-    var export = exporters.get(renderingMethod.toLowerCase());
-    var exported = export == null
-            ? "undefined export"
-            : export.export(false, request, s -> s);
-
-    return section
-            .text(markdownText("```\n" + exported + "```"));
-  }
-
+    private SectionBlockBuilder buildRequestBody(SectionBlockBuilder section,
+                                                 String renderingMethod,
+                                                 RequestContainer request) {
+        return Templates.templateFor(renderingMethod, request.getClass())
+                .map(t -> t.renderRequest(request))
+                .map(content -> markdownText("```\n" + content + "```"))
+                .map(section::text)
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported rendering method"));
+    }
 
 }

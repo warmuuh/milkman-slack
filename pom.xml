@@ -31,6 +31,31 @@
             <artifactId>milkman-rest</artifactId>
             <version>${version.milkman}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.warmuuh.milkman</groupId>
+            <artifactId>milkman-graphql</artifactId>
+            <version>${version.milkman}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.warmuuh.milkman</groupId>
+            <artifactId>milkman-grpc</artifactId>
+            <version>${version.milkman}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.warmuuh.milkman</groupId>
+            <artifactId>milkman-jdbc</artifactId>
+            <version>${version.milkman}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.warmuuh.milkman</groupId>
+            <artifactId>milkman-cassandra</artifactId>
+            <version>${version.milkman}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

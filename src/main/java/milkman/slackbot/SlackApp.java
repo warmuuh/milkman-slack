@@ -13,11 +13,12 @@ import com.slack.api.model.block.element.BlockElement;
 import com.slack.api.webhook.WebhookResponse;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import milkman.domain.RequestContainer;
 import milkman.slackbot.db.BotDatabase;
 import milkman.slackbot.db.Database;
 import milkman.slackbot.db.InstallerDatabase;
 import milkman.slackbot.oauth.JdbcInstallationService;
-import milkman.ui.plugin.rest.domain.RestRequestContainer;
+import milkman.slackbot.templates.Templates;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,9 +32,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.*;
-import static com.slack.api.model.block.composition.BlockCompositions.*;
+import static com.slack.api.model.block.composition.BlockCompositions.option;
+import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.*;
 
 @Slf4j
@@ -85,7 +88,7 @@ public class SlackApp {
     }
 
     executor.submit(t(() -> {
-      RestRequestContainer request = loader.loadRequest(privateBinUrl);
+      RequestContainer request = loader.loadRequest(privateBinUrl);
 
       List<LayoutBlock> blocks = new LinkedList<>();
       blocks.addAll(renderer.renderRequestPreview(ctx.getRequestUserId(), privateBinUrl, request));
@@ -110,14 +113,14 @@ public class SlackApp {
 
     executor.submit(t(() -> {
       if (isShare) {
-        RestRequestContainer request = loader.loadRequest(privatebinUrl);
+        RequestContainer request = loader.loadRequest(privatebinUrl);
         ctx.respond(res -> res
                 .deleteOriginal(true)
                 .responseType("in_channel")
                 .blocks(asBlocks(
-                        renderer.header(ctx.getRequestUserId(), privatebinUrl),
+                        renderer.header(ctx.getRequestUserId(), privatebinUrl, request),
                         renderer.renderRequestSimplePreview(request),
-                        actions(actions -> actions.elements(getRequestActions(privatebinUrlStr))),
+                        actions(actions -> actions.elements(getRequestActions(privatebinUrlStr, request))),
                         renderer.footer()
                 ))
         );
@@ -138,7 +141,7 @@ public class SlackApp {
     String privatebinUrl = new String(Base64.getDecoder().decode(privatebinUrlEnc));
 
     executor.submit(t(() -> {
-      RestRequestContainer request = loader.loadRequest(new URI(privatebinUrl));
+      RequestContainer request = loader.loadRequest(new URI(privatebinUrl));
       ctx.client().viewsOpen(r -> r
               .triggerId(ctx.getTriggerId())
               .view(renderer.buildRequestView(renderingMethod, privatebinUrl, request)));
@@ -159,15 +162,24 @@ public class SlackApp {
   }
 
   @NotNull
-  private static List<BlockElement> getRequestActions(String privatebinUrl) {
+  private static List<BlockElement> getRequestActions(String privatebinUrl, RequestContainer request) {
     String encUrl = Base64.getEncoder().encodeToString(privatebinUrl.getBytes());
+
+    var options = Templates.templateFor(request.getClass()).stream()
+            .map(t -> option(plainText(t.getName()), t.getName()))
+            .collect(Collectors.toList());
+
+    if (options.isEmpty()) {
+      return asElements(
+              button(b -> b.actionId("dismiss-request")
+                      .text(plainText(pt -> pt.text("Dismiss"))).value("dismiss"))
+      );
+    }
+
     return asElements(
             staticSelect(s -> s.actionId("render-request-" + encUrl)
                     .placeholder(plainText("Select Rendering method"))
-                    .options(asOptions(
-                            option(plainText("Http"), "Http"),
-                            option(plainText("Curl"), "Curl")
-                    ))),
+                    .options(options)),
             button(b -> b.actionId("dismiss-request")
                     .text(plainText(pt -> pt.text("Dismiss"))).value("dismiss"))
     );
