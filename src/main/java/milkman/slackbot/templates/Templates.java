@@ -10,7 +10,9 @@ public class Templates {
 
     private static List<RequestTemplate> templates = List.of(
             new CurlTemplate(),
-            new HttpTemplate()
+            new HttpTemplate(),
+            new SqlTemplate(),
+            new GqlHttpTemplate()
     );
 
     public static <T extends RequestContainer> Optional<RequestTemplate> templateFor(String name, Class<T> type) {
