@@ -5,7 +5,7 @@ import milkman.plugin.grpc.export.GrpcurlTextExport;
 
 public class GrpcurlTemplate extends RequestTemplate<GrpcRequestContainer> {
     public GrpcurlTemplate() {
-        super("Cqlsh");
+        super("gRPCurl");
     }
 
     @Override

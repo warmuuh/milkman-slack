@@ -178,7 +178,7 @@ public class SlackApp {
 
     return asElements(
             staticSelect(s -> s.actionId("render-request-" + encUrl)
-                    .placeholder(plainText("Select Rendering method"))
+                    .placeholder(plainText("Show as ..."))
                     .options(options)),
             button(b -> b.actionId("dismiss-request")
                     .text(plainText(pt -> pt.text("Dismiss"))).value("dismiss"))
