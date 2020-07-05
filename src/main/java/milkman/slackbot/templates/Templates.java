@@ -12,7 +12,10 @@ public class Templates {
             new CurlTemplate(),
             new HttpTemplate(),
             new SqlTemplate(),
-            new GqlHttpTemplate()
+            new GqlCurlTemplate(),
+            new GqlHttpTemplate(),
+            new CqlshTemplate(),
+            new GrpcurlTemplate()
     );
 
     public static <T extends RequestContainer> Optional<RequestTemplate> templateFor(String name, Class<T> type) {
