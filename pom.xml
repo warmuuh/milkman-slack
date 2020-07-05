@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.source>11</maven.compiler.source>
-        <version.milkman>d3689da987</version.milkman>
+        <version.milkman>276d6b1f13</version.milkman>
     </properties>
 
     <dependencies>
