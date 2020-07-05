@@ -87,7 +87,7 @@ public class SlackApp {
       return ctx.ack("'" + text + "' not a valid privatebin url");
     }
 
-    executor.submit(t(() -> {
+    executor.submit(t(ctx, () -> {
       RequestContainer request = loader.loadRequest(privateBinUrl);
 
       List<LayoutBlock> blocks = new LinkedList<>();
@@ -111,7 +111,7 @@ public class SlackApp {
     String privatebinUrlStr = req.getPayload().getActions().get(0).getValue();
     var privatebinUrl = new URI(privatebinUrlStr);
 
-    executor.submit(t(() -> {
+    executor.submit(t(ctx, () -> {
       if (isShare) {
         RequestContainer request = loader.loadRequest(privatebinUrl);
         ctx.respond(res -> res
@@ -140,7 +140,7 @@ public class SlackApp {
             .substring("render-request-".length());
     String privatebinUrl = new String(Base64.getDecoder().decode(privatebinUrlEnc));
 
-    executor.submit(t(() -> {
+    executor.submit(t(ctx, () -> {
       RequestContainer request = loader.loadRequest(new URI(privatebinUrl));
       ctx.client().viewsOpen(r -> r
               .triggerId(ctx.getTriggerId())
@@ -154,7 +154,7 @@ public class SlackApp {
 
   @SneakyThrows
   private Response handleDismissRequestAction(BlockActionRequest req, ActionContext ctx) {
-    executor.submit(t(() -> {
+    executor.submit(t(ctx, () -> {
       ctx.respond(r -> r.deleteOriginal(true));
     }));
 
@@ -195,13 +195,33 @@ public class SlackApp {
     );
   }
 
-  private static Callable t(ThrowingRunnable r) {
+  private static Callable t(SlashCommandContext ctx, ThrowingRunnable r) {
     return () -> {
-      r.run();
+      try {
+        r.run();
+      } catch (Throwable t) {
+        log.error("failed to handle async action", t);
+        ctx.respond(res -> res
+                .responseType("ephemeral")
+                .text("Something went wrong, sorry."));
+      }
       return null;
     };
   }
 
+  private static Callable t(ActionContext ctx, ThrowingRunnable r) {
+    return () -> {
+      try {
+        r.run();
+      } catch (Throwable t) {
+        log.error("failed to handle async action", t);
+        ctx.respond(res -> res
+                .responseType("ephemeral")
+                .text("Something went wrong, sorry."));
+      }
+      return null;
+    };
+  }
 
   @FunctionalInterface
   interface ThrowingRunnable {
